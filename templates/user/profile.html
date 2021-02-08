@@ -1,0 +1,59 @@
+{%extends 'base.html'%}
+{%block title%}{{request.user.name}}{%endblock title%}
+{% block profileactive %} active {% endblock profileactive %}
+{%block body%}
+<div class="container pt-4 d-flex justify-content-around">
+    <div>
+        <h4>Name:{{request.user.name}}
+            Email:{{request.user}}</h4>
+    </div>
+    <div><a href="/profile-update" class="btn btn-sm btn-secondary">Update Profile</a></div>
+</div>
+
+<div class="container">
+    <hr>
+</div>
+
+<div class="container d-flex justify-content-around">
+    <div>
+        <h2>My Memes</h2>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            Add Memes
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <li><a class="dropdown-item" href="/memes/text/new">Text Memes</a></li>
+            <li><a class="dropdown-item" href="/memes/photos/new">Photo Memes</a></li>
+            <li><a class="dropdown-item" href="/memes/videos/new">Video Memes</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="container pt-4">
+    <div class="row">
+        {% for meme in memes%}
+        <div class="col-md-4 col-sm-12 mb-4">
+            <div class="card shadow-sm p-1">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{meme.author.name}}</h5>
+                    <p class="card-text"><small class="text-muted">{{meme.created_date}}</small></p>
+                    {% if meme.caption %}<p class="card-text ">{{meme.caption}}</p>{% endif%}
+                    {% if meme.meme_text %} <p class="card-text ">{{meme.meme_text}}</p>{% endif %}
+                    <a href="{% url 'meme-detail' meme.id %}" class="">Go To Meme...</a>
+                </div>
+                {% if meme.photos %}
+                <a href="{% url 'meme-detail' meme.id %}"><img src="{{meme.photos.url}}" class="card-img-bottom"
+                        height='200' alt="..."></a>
+                {% endif %}
+                {% if meme.videos %}
+                <a href="{% url 'meme-detail' meme.id %}"><video src="{{meme.videos.url}}" controls height="100%"
+                        width="100%"></video></a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{%endblock body%}

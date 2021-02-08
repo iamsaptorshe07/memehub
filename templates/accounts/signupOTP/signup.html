@@ -1,0 +1,42 @@
+{% extends 'base.html'%}
+{% load socialaccount %}
+{%block title%} Signup {%endblock title%}
+{% block signupactive %} active {% endblock signupactive %}
+{%block body%}  
+<div class="signup-form">
+    <form method="POST" action="/signup">
+        {% csrf_token %}
+        <h2>Signup</h2>
+        <a href="{% provider_login_url 'google' %}" class="google btn btn-danger btn-lg btn-block" role="button"
+            aria-pressed="true"><i class="fa fa-google-plus-square" aria-hidden="true"></i> Signup with Google</a>
+        <a href="{% provider_login_url 'google' %}" class="fb btn btn-primary btn-lg btn-block" role="button"
+            aria-pressed="true"><i class="fa fa-facebook-square" aria-hidden="true"></i> Signup with Facebook</a>
+        <p class="para">OR</p>
+        <div class="form-group">
+            <input type="email" class="form-control" id="email" name="email" placeholder="Email" required="required">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="name" name="name" placeholder="Name" required="required">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" id="pass1 " name="pass1" placeholder="Password"
+                required="required">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" id="pass2" name="pass2" placeholder="Confirm Password"
+                required="required">
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-success btn-lg btn-block">Register Now</button>
+        </div>
+    </form>
+    <div class="conatiner">
+        <div class="row text-center">
+            <div class="col-lg-6 col-md-6 col-sm-12 text-inline">Not Verified Email?  <a
+                    href="/verify-email">Verify</a>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">Already have an account? <a href="/login">Login</a></div>
+        </div>
+    </div>
+</div>
+{%endblock body%}

@@ -1,0 +1,15 @@
+{% extends 'base.html'%}
+{%block title%} {{title}} {%endblock title%}
+{%block body%}
+<div class="signup-form">
+    <form method="POST" action="{% url 'meme-photo-add' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2>Add Photo Meme</h2>
+        <div class="form-group">
+           {{form.as_table}}
+        <div class="form-group">
+            <button type="submit" class="btn btn-success btn-lg btn-block">Post</button>
+        </div>
+    </form>
+</div>
+{%endblock body%}

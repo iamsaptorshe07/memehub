@@ -1,0 +1,28 @@
+{%extends 'base.html'%}
+{%block body%}
+<div class="container p-4">
+    <div class="row">
+        {% for meme in memes %}
+        <div class="col-md-4 col-sm-12 mb-4">
+            <div class="card shadow-sm p-1">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{meme.author.name}}</h5>
+                    <p class="card-text"><small class="text-muted">{{meme.created_date}}</small></p>
+                    {% if meme.caption %}<p class="card-text ">{{meme.caption}}</p>{% endif %}
+                    {% if meme.meme_text %} <p class="card-text ">{{meme.meme_text}}</p>{% endif %}
+                    <a href="{% url 'meme-detail' meme.id %}" class="">Go To Meme...</a>
+                </div>
+                {% if meme.photos %}
+                <a href="{% url 'meme-detail' meme.id %}"><img src="{{meme.photos.url}}" class="card-img-bottom"
+                        height='200' alt="..."></a>
+                {% endif %}
+                {% if meme.videos %}
+                <a href="{% url 'meme-detail' meme.id %}"><video src="{{meme.videos.url}}" controls height="100%"
+                        width="100%"></video></a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{%endblock body%}
