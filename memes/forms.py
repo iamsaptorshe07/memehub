@@ -1,5 +1,5 @@
 from django import forms
-from memes.models import Meme
+from memes.models import Meme,Comment
 
 class MemeTextForm(forms.ModelForm):
     class Meta:

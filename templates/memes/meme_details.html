@@ -1,7 +1,193 @@
 {%extends 'base.html'%}
 {%block title%}Meme Details & Comments{%endblock title%}
 {%block body%}
-<div class="container p-4">
-    Caption:{{object.caption}}
+{% load humanize %}
+{% load extras %}
+<div class="container my-3">
+    <div class="meme-post">
+        <h2 class="meme-post-title"></h2>
+        <p class="meme-post-meta">{{meme.created_date}} by <a href="#">{{meme.author.name}}</a></p>
+        {% if meme.meme_text %}<p>{{meme.meme_text}}</p>{% endif %}
+        <div class="signup-form">
+            {% if meme.photos %}
+            <a href="{% url 'meme-detail' meme.id %}"><img src="{{meme.photos.url}}" class="card-img-bottom"
+                    height='200' alt="..."></a>
+            {% endif %}
+            {% if meme.videos %}
+            <a href="{% url 'meme-detail' meme.id %}"><video src="{{meme.videos.url}}" controls height="100%"
+                    width="100%"></video></a>
+            {% endif %}
+            {% if meme.caption %}<p>{{meme.caption}}</p>{% endif %}
+        </div>
+    </div>
+    <!----------------------------Likes/Dislikes------------------------------->
+    <div class="form-inline">
+        <form action="/memes/likes" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="meme_id" value="{{meme.id}}">
+            {% if request.user in meme.likes.all %}
+            <button class="btn btn-primary btn-sm">Like</button>
+            {% else %}
+            <button class="btn btn-danger btn-sm">Like</button>
+            {% endif %}
+        </form>
+        <form action="/memes/dislikes" method="POST" class="ml-4">
+            {% csrf_token %}
+            <input type="hidden" name="meme_id" value="{{meme.id}}">
+            {% if request.user in meme.dislikes.all %}
+            <button class="btn btn-primary btn-sm">Dislike</button>
+            {% else %}
+            <button class="btn btn-danger btn-sm">Dislike</button>
+            {% endif %}
+        </form>
+    </div>
+    <strong>{{meme.likes.all.count}} Likes</strong>
+    <strong class="ml-2">{{meme.dislikes.all.count}} Dislikes</strong><br>
+    {% if request.user in meme.likes.all %}
+    <strong>You Like Meme</strong>
+    {% elif request.user in meme.dislikes.all %}
+    <strong>You Dislike Meme</strong>
+    {% else %}
+    {% endif %}
+    <hr>
+</div>
+<!-------------------------------------Comment/Replies Section-------------------------------------->
+<div class="container">
+    <h3>Comments:{{comments.count}}</h3>
+    <div class="my-2">
+        {%if user.is_authenticated %}
+        <div class="signup-form">
+            <form action="/memes/postComment" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Post Comment</label>
+                    <input type="text" class="form-control" name="content" aria-describedby="emailHelp"
+                        placeholder="Enter comment">
+                </div>
+                <input type="hidden" name="meme_id" value="{{meme.id}}">
+                <input type="hidden" name="parent_id" value=" ">
+                <button type="submit" class="btn btn-primary">Comment</button>
+            </form>
+        </div>
+        {% else %}
+        Please first <a href="/login">Login</a> to post comments or replies
+    </div>
+    {% endif %}
+    {% for comment in comments %}
+    <div class="row my-3">
+        <div class="col-md-2">
+            <div class="text-center">
+                <img src="/static/user-alt-512.png" class="rounded" width="50" height="50" alt="...">
+            </div>
+        </div>
+        <div class="col-md-10"><b>{{comment.user.name}}</b> Comment Posted {{comment.date_posted | naturaltime}}    
+            {% if comment.date_posted == comment.content_updated %}
+            {% else %}
+            , Edited {{comment.content_updated | naturaltime}}
+            {% endif %}
+            <div>{{comment.content}}
+                {% if comment.user == user %}
+                <div class="update-comment mx-0">
+                    <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse"
+                        data-target="#update-comment{{comment.id}}" aria-expanded="false"
+                        aria-controls="collapseExample">
+                        Update
+                    </button>
+                    <a href="/comment-delete/{{comment.id}}" type="button"
+                        class="btn btn-sm btn-primary text-decoration-none">Delete</a>
+                    <div class="collapse" id="update-comment{{comment.id}}">
+                        <div class="signup-form">
+                            <div class="card card-body my-2">
+                                <form action="/comment-update/{{comment.id}}" method="POST">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Update Comment</label>
+                                        <input type="text" class="form-control" name="content"
+                                            aria-describedby="emailHelp" value="{{comment.content}}">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Comment</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="replies my-3">
+                    {% for reply in replyDict|get_val:comment.id %}
+                    <div class="row my-3">
+                        <div class="col-md-2">
+                            <img src="/static/user-alt-512.png" class="rounded" width="50" height="50" alt="...">
+                        </div>
+                        <div class="col-md-10">
+                            <b>{{reply.user.name}}</b> Reply Posted {{reply.date_posted | naturaltime}}
+                            {% if reply.date_posted == reply.content_updated %}
+                            {% else %}
+                            ,Edited {{reply.content_updated | naturaltime}}
+                            {% endif %}
+                            <div>{{reply.content}}
+                                {% if comment.user == user %}
+                                <div class="update-reply ">
+                                    <button class="btn btn-sm btn-primary " type="button" data-toggle="collapse"
+                                        data-target="#update-reply{{reply.id}}" aria-expanded="false"
+                                        aria-controls="collapseExample">
+                                        Update</button>
+                                    <div class="collapse" id="update-reply{{reply.id}}">
+                                        <div class="signup-form">
+                                            <div class="card card-body my-2">
+                                                <form action="/reply-update/{{reply.id}}" method="POST">
+                                                    {% csrf_token %}
+                                                    <div class="form-group">
+                                                        <label for="exampleInputEmail1">Update Reply</label>
+                                                        <input type="text" class="form-control" name="content"
+                                                            aria-describedby="emailHelp" value="{{reply.content}}">
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Update</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a href="/reply-delete/{{reply.id}}" type="button"
+                                        class="btn btn-sm btn-primary text-decoration-none">Delete</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <br>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="reply pl-0">
+                    {%if user.is_authenticated %}
+                    <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse"
+                        data-target="#replyBox{{comment.id}}" aria-expanded="false" aria-controls="collapseExample">
+                        Reply
+                    </button>
+                    <div class="collapse" id="replyBox{{comment.id}}">
+                        <div class="signup-form">
+                            <div class="card card-body my-2">
+                                <form action="/memes/postComment" method="POST">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Post Reply</label>
+                                        <input type="text" class="form-control" name="content"
+                                            aria-describedby="emailHelp" placeholder="Enter Reply">
+                                        <input type="hidden" name="parent_id" value="{{comment.id}}">
+                                    </div>
+                                    <input type="hidden" name="meme_id" value="{{meme.id}}">
+                                    <button type="submit" class="btn btn-primary">Reply</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% else %}
+                    {% endif %}
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {%endblock body%}

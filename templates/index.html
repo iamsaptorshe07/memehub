@@ -20,6 +20,8 @@
                 <a href="{% url 'meme-detail' meme.id %}"><video src="{{meme.videos.url}}" controls height="100%"
                         width="100%"></video></a>
                 {% endif %}
+                <strong>{{meme.likes.all.count}} Likes</strong>
+                <strong>{{meme.dislikes.all.count}} Dislikes</strong>
             </div>
         </div>
         {% endfor %}

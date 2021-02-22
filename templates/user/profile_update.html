@@ -1,5 +1,5 @@
 {% extends 'base.html'%}
-{%block title%}Update {{request.user.name}}'s Profile{%endblock title%}
+{%block title%}{% if request.user.name %}Update {{request.user.name}}'s Profile{% else %}Update {{request.user}} Profile{% endif %}{%endblock title%}
 {% block profileactive %} active {% endblock profileactive %}
 {%block body%}
 <div class="signup-form">
